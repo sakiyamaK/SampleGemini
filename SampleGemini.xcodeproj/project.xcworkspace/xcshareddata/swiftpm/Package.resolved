@@ -1,0 +1,41 @@
+{
+  "pins" : [
+    {
+      "identity" : "declarativeuikit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/sakiyamaK/DeclarativeUIKit",
+      "state" : {
+        "revision" : "35fdd23212a75723f0eb6e82d0295bfe7658d297",
+        "version" : "2.0.2"
+      }
+    },
+    {
+      "identity" : "generative-ai-swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/google/generative-ai-swift",
+      "state" : {
+        "revision" : "ea39d69cb14cdb40c5c4bbe3732478b96a9737bc",
+        "version" : "0.4.2"
+      }
+    },
+    {
+      "identity" : "kingfisher",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/onevcat/Kingfisher",
+      "state" : {
+        "revision" : "add0a87ec4e31e2ca2a0b2085f0559201e4f5918",
+        "version" : "7.10.1"
+      }
+    },
+    {
+      "identity" : "observableuikit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/sakiyamaK/ObservableUIKit",
+      "state" : {
+        "revision" : "7e36531e28530cca349918853d6d1a8b644cfae4",
+        "version" : "0.0.3"
+      }
+    }
+  ],
+  "version" : 2
+}
