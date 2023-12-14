@@ -13,39 +13,28 @@ import Kingfisher
 
 @Observable
 class ViewModel {
-    private(set) var text: String
+    var apiKey: String = ""
+    private(set) var text: String = ""
     private(set) var loading: Bool = false
     private(set) var error: Error?
 
-    /**
-     自身で生成したAPIKeyをいれてね
-     */
-    private let textModel = GenerativeModel(
-        name: "gemini-pro",
-        apiKey:
-            "ここに[https://makersuite.google.com/app/apikey]で生成したAPIKeyを入れてください"
-    )
-    
-    private let textImageModel = GenerativeModel(
-        name: "gemini-pro-vision",
-        apiKey:
-            "ここに[https://makersuite.google.com/app/apikey]で生成したAPIKeyを入れてください"
-    )
-
-    
-    init(text: String = "") {
-        self.text = text
+    private func createGenerativeModel(image: UIImage? = nil) -> GenerativeModel {
+        GenerativeModel(
+            name: image == nil ? "gemini-pro" : "gemini-pro-vision",
+            apiKey: apiKey
+        )
     }
-    
+        
     func generateContentStream(text: String, image: UIImage? = nil) async {
         do {
             self.text = ""
             loading = true
+            let genrativeModel = createGenerativeModel(image: image)
             let responseStream: AsyncThrowingStream<GenerateContentResponse, Error>
             if let image {
-                responseStream = textImageModel.generateContentStream(text, image)
+                responseStream = genrativeModel.generateContentStream(text, image)
             } else {
-                responseStream = textModel.generateContentStream(text)
+                responseStream = genrativeModel.generateContentStream(text)
             }
             for try await cunk in responseStream {
                 self.text += cunk.text ?? ""
@@ -62,11 +51,12 @@ class ViewModel {
         do {
             self.text = ""
             loading = true
+            let genrativeModel = createGenerativeModel(image: image)
             let response: GenerateContentResponse
             if let image {
-                response = try await textImageModel.generateContent(text, image)
+                response = try await genrativeModel.generateContent(text, image)
             } else {
-                response = try await textModel.generateContent(text)
+                response = try await genrativeModel.generateContent(text)
             }
             loading = false
             self.text = response.text ?? ""
@@ -83,6 +73,7 @@ final class SampleGeminiViewController: UIViewController {
     
     private let viewMModel = ViewModel()
     
+    private var apiKeyTextField: UITextField!
     private var searchTextField: UITextField!
     private var imageView: UIImageView!
     private var imageSearchTextField: UITextField!
@@ -96,8 +87,11 @@ final class SampleGeminiViewController: UIViewController {
             guard let self else { return }
             $0.rightBarButtonItem = UIBarButtonItem(title: "教えてGeminiさん！")
                 .action(self, {[weak self] _ in
-                    guard let self, let prompt = self.searchTextField.text else { return }
+                    guard let self,
+                            let apiKey = apiKeyTextField.text,
+                            let prompt = self.searchTextField.text else { return }
                     Task {
+                        self.viewMModel.apiKey = apiKey
                         if let image = self.imageView.image {
                             await self.viewMModel.generateContent(text: prompt, image: image)
                         } else {
@@ -107,13 +101,20 @@ final class SampleGeminiViewController: UIViewController {
                 })
         }).declarative {
             UIStackView.vertical {
+                UITextField(assign: &apiKeyTextField)
+                    .placeholder("API Key")
+                    .padding()
+                    .border(color: .gray, width: 1)
+                    .customSpacing(16)
                 UITextField(assign: &searchTextField)
+                    .placeholder("質問文を入れてね")
                     .delegate(self)
                     .padding()
                     .border(color: .gray, width: 1)
                     .customSpacing(16)
                 
                 UITextField(assign: &imageSearchTextField)
+                    .placeholder("URLを指定して画像も指定できるよ")
                     .delegate(self)
                     .padding()
                     .border(color: .gray, width: 1)
